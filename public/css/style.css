@@ -1,0 +1,260 @@
+/* Custom Global Styles */
+body {
+    font-family: 'Myanmar Text', 'Padauk', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    background-color: #F4F7FA; /* Light grey background for the body */
+    color: #333333; /* Default text color */
+    line-height: 1.6;
+}
+
+.header-main {
+    background-color: #0A2240; /* Primary Navy Blue */
+    color: white;
+    padding: 25px 0;
+    text-align: center;
+    border-bottom: 3px solid #FFD700; /* Subtle gold accent */
+}
+
+.header-main h1 {
+    font-size: 2rem; /* Adjusted for better hierarchy */
+    font-weight: bold;
+    margin-bottom: 0.25em;
+}
+
+.header-main p {
+    font-size: 1.1rem; /* English subtitle */
+    margin-bottom: 0;
+    opacity: 0.9;
+}
+
+.header-link,
+.header-link:hover,
+.header-link:focus {
+    text-decoration: none; /* Remove underline */
+    color: inherit; /* Inherit color from parent, usually white or dark from header style */
+}
+
+/* Homepage Specific Styles */
+.main-title-burmese {
+    font-size: 2.4rem; 
+    font-weight: 600; 
+    color: #0A2240; /* Navy Blue for title */
+    margin-top: 1.5em;
+    margin-bottom: 0.3em;
+}
+
+.sub-title-burmese {
+    font-size: 1.6rem; 
+    color: #555; /* Slightly lighter than main text */
+    margin-bottom: 2em;
+}
+
+.category-button {
+    background-color: #0A2240; /* Primary Navy Blue */
+    border: 2px solid #0A2240;
+    color: white;
+    padding: 18px 25px; /* Larger padding for better clickability */
+    font-size: 1.2rem; /* Larger font size for buttons */
+    font-weight: 500;
+    margin: 10px;
+    border-radius: 5px; /* Slightly rounded corners */
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, transform 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+    min-width: 280px; /* Ensure buttons have a good minimum width */
+    text-align: center;
+}
+
+.category-button:hover {
+    background-color: #0056b3; /* A standard darker blue for hover */
+    border-color: #004085;
+    color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Department Page Styles */
+.department-title {
+    color: #0A2240;
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 1em;
+    padding-bottom: 0.5em;
+    /* border-bottom: 2px solid #0A2240; */ /* Underline removed */
+}
+
+.sub-category-link {
+    font-family: 'Myanmar Text', 'Padauk', sans-serif;
+    font-size: 1.1rem; /* Slightly larger than default paragraph text */
+    font-weight: bold; /* Make text bold */
+    color: #0A2240; /* Primary Navy Blue for link text */
+    text-decoration: none; /* No underline by default */
+    display: block; /* Ensure each link takes its own line */
+    padding: 8px 5px 8px 0; /* Adjusted padding to accommodate bullet */
+    border-radius: 3px; /* Slight rounding for hover background */
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+    position: relative; /* Needed for absolute positioning of pseudo-element if desired, or just for flow */
+    padding-left: 20px; /* Create space for the bullet */
+}
+
+.sub-category-link::before {
+    content: '\2022'; /* Unicode for a standard bullet point • */
+    color: #0A2240; /* Bullet color same as link text */
+    font-weight: bold;
+    display: inline-block; /* Or absolute for more control */
+    position: absolute;
+    left: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.sub-category-link:hover,
+.sub-category-link:focus {
+    color: #004085; /* Darker blue for hover text */
+    text-decoration: underline;
+    background-color: #e9ecef; /* Light grey background on hover */
+}
+
+/* Breadcrumb Styles */
+.breadcrumb-container-wrapper {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+    padding: 0.75rem 0;
+    margin-bottom: 2rem;
+}
+
+.breadcrumb {
+    background-color: transparent;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.breadcrumb-item {
+    display: flex;
+    align-items: center;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #6c757d;
+    padding: 0.25rem 0;
+}
+
+.breadcrumb-item a {
+    color: #0A2240;
+    text-decoration: none;
+    transition: all 0.2s ease-in-out;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-family: 'Myanmar Text', 'Padauk', sans-serif;
+}
+
+.breadcrumb-item a:hover,
+.breadcrumb-item a:focus {
+    color: #0056b3;
+    background-color: rgba(10, 34, 64, 0.05);
+    text-decoration: none;
+}
+
+.breadcrumb-item.active {
+    color: #495057;
+    font-weight: 600;
+    font-family: 'Myanmar Text', 'Padauk', sans-serif;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    content: "›";
+    color: #adb5bd;
+    font-size: 1.2rem;
+    line-height: 1;
+    padding: 0 0.5rem;
+    font-weight: normal;
+}
+
+/* Responsive adjustments for breadcrumbs */
+@media (max-width: 768px) {
+    .breadcrumb-container-wrapper {
+        padding: 0.5rem 0;
+        margin-bottom: 1.5rem;
+    }
+    
+    .breadcrumb-item {
+        font-size: 0.9rem;
+    }
+    
+    .breadcrumb-item + .breadcrumb-item::before {
+        padding: 0 0.35rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .breadcrumb-item {
+        font-size: 0.85rem;
+    }
+    
+    .breadcrumb-item a {
+        padding: 0.2rem 0.4rem;
+    }
+}
+
+/* Ensure the separator color matches the link color or is neutral */
+.breadcrumb-item + .breadcrumb-item::before {
+    color: #0A2240; /* Navy blue for separator */
+    /* If your Bootstrap version uses an SVG for the separator, this might not apply directly */
+    /* You might need to target the SVG or use Bootstrap's SASS variables to change it */
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) { /* Adjust breakpoint for button wrapping */
+    .category-button {
+        min-width: 250px; /* Slightly smaller min-width for medium screens */
+    }
+}
+
+@media (max-width: 768px) {
+    .main-title-burmese {
+        font-size: 2rem;
+    }
+    .sub-title-burmese {
+        font-size: 1.3rem;
+    }
+    .category-button {
+        font-size: 1rem;
+        padding: 15px 20px;
+        width: 100%; /* Stack buttons on smaller screens */
+        margin-left: 0;
+        margin-right: 0;
+        min-width: auto; /* Remove min-width when stacked */
+    }
+    .header-main h1 {
+        font-size: 1.6rem;
+    }
+    .header-main p {
+        font-size: 1rem;
+    }
+    .department-title {
+        font-size: 1.8rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .main-title-burmese {
+        font-size: 1.8rem;
+    }
+    .sub-title-burmese {
+        font-size: 1.2rem;
+    }
+    .header-main h1 {
+        font-size: 1.5rem;
+    }
+    .header-main p {
+        font-size: 1.5rem;
+    }
+}
+
+/* Payment Modal Styles */
+.price-badge {
+    background-color: #f1f3f5; /* Light grey background */
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem; /* Pill shape */
+    font-weight: 500;
+    white-space: nowrap; /* Prevent price from wrapping */
+}

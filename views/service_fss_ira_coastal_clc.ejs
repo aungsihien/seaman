@@ -1,0 +1,146 @@
+<%- include('partials/header', { title: pageTitle }) %>
+
+<div class="breadcrumb-container-wrapper bg-light py-2 border-bottom mb-5">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="/">ပင်မစာမျက်နှာ</a></li>
+                <li class="breadcrumb-item"><a href="/department/waterways"><%= greatGreatGrandparentDepartmentName %></a></li>
+                <li class="breadcrumb-item"><a href="/department/waterways/flag-state-survey"><%= greatGrandparentSubSectionName %></a></li>
+                <li class="breadcrumb-item"><a href="/department/waterways/flag-state-survey/coastal-vessels"><%= grandparentNestedSectionName %></a></li>
+                <li class="breadcrumb-item"><a href="/department/waterways/flag-state-survey/coastal-vessels/initial-renewal-annual"><%= parentServiceName %></a></li>
+                <li class="breadcrumb-item active" aria-current="page"><%= pageTitle %></li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="container mt-4">
+    <h2 class="department-title"><%= pageTitle %></h2>
+    <p class="lead">ကျန်ဆောင်မှုအတွက် လိုအပ်သော အချက်အလက်များကို ရွေးချယ်ပါ။</p>
+    <hr class="my-4">
+
+    <form id="clcCoastalForm">
+        <div class="fee-list-container mb-4">
+            <% items.forEach(function(item, index) { %>
+                <label class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                    <div class="form-check">
+                        <input class="form-check-input fee-checkbox" type="checkbox" id="item<%= index %>" data-price="<%= item.price %>" <%= item.checked ? 'checked' : '' %>>
+                        <label class="form-check-label" for="item<%= index %>">
+                            <%= item.description %>
+                        </label>
+                    </div>
+                    <span class="price-tag"><%= formatCurrency(item.price) %></span>
+                </label>
+            <% }); %>
+        </div>
+
+        <div class="total-amount-container d-flex justify-content-end align-items-center p-3 bg-light rounded mb-4">
+            <h5 class="mb-0 me-3">စုစုပေါင်းကျသင့်ငွေ:</h5>
+            <h5 class="mb-0"><strong id="totalAmount">၀ ကျပ်</strong></h5>
+        </div>
+
+        <div class="d-flex justify-content-between">
+            <a href="/department/waterways/flag-state-survey/coastal-vessels/initial-renewal-annual" class="btn btn-primary">&laquo; အရှေ့စာမျက်နှာသို့ ပြန်သွားရန်</a>
+            <button type="button" class="btn btn-success" id="proceedToPaymentBtn">ငွေပေးချေမည်</button>
+        </div>
+    </form>
+</div>
+
+<%- include('partials/payment_modals') %>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // --- Helper Functions for Client-Side Updates ---
+        const myanmarNumbers = ['၀', '၁', '၂', '၃', '၄', '၅', '၆', '၇', '၈', '၉'];
+        function toMyanmarNumberString(num) {
+            const numStr = num.toLocaleString('en-US');
+            return numStr.split('').map(char => {
+                if (char === ',') return ',';
+                if (char >= '0' && char <= '9') return myanmarNumbers[parseInt(char)];
+                return char;
+            }).join('');
+        }
+        function formatMyanmarCurrency(num) {
+            return toMyanmarNumberString(num) + ' ကျပ်';
+        }
+
+        // --- DOM Element Selection ---
+        const form = document.getElementById('clcCoastalForm');
+        const checkboxes = form.querySelectorAll('.fee-checkbox');
+        const totalAmountElement = document.getElementById('totalAmount');
+        const selectedItemsList = document.getElementById('selectedItemsList');
+        const modalTotalAmount = document.getElementById('modalTotalAmount');
+        const proceedToPaymentBtn = document.getElementById('proceedToPaymentBtn');
+        const paymentModal = document.getElementById('paymentConfirmationModal');
+
+        // --- Core Logic ---
+        function updateTotal() {
+            let currentTotal = 0;
+            checkboxes.forEach(checkbox => {
+                if (checkbox.checked) {
+                    currentTotal += parseInt(checkbox.dataset.price, 10);
+                }
+            });
+            totalAmountElement.textContent = formatMyanmarCurrency(currentTotal);
+            return currentTotal;
+        }
+
+        // --- Event Listeners ---
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', updateTotal);
+        });
+
+        proceedToPaymentBtn.addEventListener('click', function() {
+            const currentTotal = updateTotal();
+            if (currentTotal === 0) {
+                alert('ကျေးဇူးပြု၍ အနည်းဆုံး ဝန်ဆောင်မှုတစ်ခု ရွေးချယ်ပါ။');
+                return;
+            }
+
+            // Clear previous content
+            selectedItemsList.innerHTML = '';
+            let modalTotal = 0;
+            let itemsHtml = '';
+
+            // Generate new content for selected items
+            checkboxes.forEach(checkbox => {
+                if (checkbox.checked) {
+                    const price = parseInt(checkbox.dataset.price, 10);
+                    const description = checkbox.nextElementSibling.textContent.trim();
+                    
+                    itemsHtml += `
+                        <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                            <span>${description}</span>
+                            <span class="price-badge">${formatMyanmarCurrency(price)}</span>
+                        </div>`;
+                    
+                    modalTotal += price;
+                }
+            });
+
+            // Populate the list and the total
+            selectedItemsList.innerHTML = itemsHtml;
+            modalTotalAmount.textContent = formatMyanmarCurrency(modalTotal);
+
+            // Show the payment modal
+            const modal = new bootstrap.Modal(paymentModal);
+            modal.show();
+        });
+
+        document.getElementById('confirmPaymentBtn').addEventListener('click', function() {
+            const confirmationModal = bootstrap.Modal.getInstance(paymentModal);
+            confirmationModal.hide();
+
+            const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+            successModal.show();
+
+            form.querySelectorAll('input, button').forEach(el => el.disabled = true);
+        });
+
+        // --- Initial Calculation ---
+        updateTotal();
+    });
+</script>
+
+<%- include('partials/footer') %> 

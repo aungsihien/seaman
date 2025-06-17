@@ -1,0 +1,44 @@
+<!-- Confirmation Modal -->
+<div class="modal fade" id="paymentConfirmationModal" tabindex="-1" aria-labelledby="paymentConfirmationModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="paymentConfirmationModalLabel">ငွေပေးချေမှု အတည်ပြုပါ</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>သင်ရွေးချယ်ထားသော ဝန်ဆောင်မှုများမှာ အောက်ပါအတိုင်းဖြစ်ပါသည်:</p>
+        <div id="selectedItemsList" class="mb-3">
+              <!-- Selected items will be populated here by JavaScript -->
+            </div>
+            <hr>
+            <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><strong>စုစုပေါင်းကျသင့်ငွေ:</strong></h5>
+            <h5 class="mb-0"><strong id="modalTotalAmount" class="price-display"></strong></h5>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">မပြုလုပ်ပါ</button>
+        <button type="button" class="btn btn-primary" id="confirmPaymentBtn">အတည်ပြုမည်</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Success Modal -->
+<div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="successModalLabel">အောင်မြင်ပါသည်</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p class="text-center fs-5 py-3">ငွေပေးချေမှု အောင်မြင်ပါသည်။</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">ပိတ်မည်</button>
+      </div>
+    </div>
+  </div>
+</div>

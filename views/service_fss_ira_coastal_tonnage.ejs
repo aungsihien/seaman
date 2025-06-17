@@ -1,0 +1,265 @@
+<%- include('partials/header', { title: pageTitle }) %>
+
+<div class="breadcrumb-container-wrapper bg-light py-2 border-bottom mb-5">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="/">ပင်မစာမျက်နှာ</a></li>
+                <li class="breadcrumb-item"><a href="/department/waterways"><%= greatGreatGrandparentDepartmentName %></a></li>
+                <li class="breadcrumb-item"><a href="/department/waterways/flag-state-survey"><%= greatGrandparentSubSectionName %></a></li>
+                <li class="breadcrumb-item"><a href="/department/waterways/flag-state-survey/coastal-vessels"><%= grandparentNestedSectionName %></a></li>
+                <li class="breadcrumb-item"><a href="/department/waterways/flag-state-survey/coastal-vessels/initial-renewal-annual"><%= parentServiceName %></a></li>
+                <li class="breadcrumb-item active" aria-current="page"><%= pageTitle %></li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="container mt-4">
+    <h2 class="department-title"><%= pageTitle %></h2>
+    <p class="lead">ကျန်ဆောင်မှုအတွက် လိုအပ်သော အချက်အလက်များကို ရွေးချယ်ပါ။</p>
+    <hr class="my-4">
+
+    <form id="tonnageCertificateForm">
+        <div class="fee-list-container mb-4">
+            <% items.forEach(function(item, index) { %>
+                <div class="form-check py-2 border-bottom">
+                    <input class="form-check-input fee-checkbox" type="checkbox" id="item<%= index %>" 
+                           data-price="<%= item.price %>" 
+                           data-is-dynamic="<%= item.isDynamic ? 'true' : 'false' %>"
+                           data-multiplier="<%= item.multiplier %>"
+                           data-is-foreign-vessel="<%= item.isForeignVessel ? 'true' : 'false' %>"
+                           data-usd-amount="<%= item.usdAmount %>"
+                           <%= item.checked ? 'checked' : '' %>>
+                    <label class="form-check-label d-flex justify-content-between w-100" for="item<%= index %>">
+                        <span class="item-description">
+                            <%= item.description %>
+                            <% if (item.isDynamic) { %>
+                                <% if (item.isForeignVessel) { %>
+                                    <input type="number" class="form-control form-control-sm d-inline-block exchange-rate-input ms-2 me-1" style="width: 100px;" placeholder="Exchange Rate" data-target-item-id="item<%= index %>" min="0" step="0.01">
+                                    <span> USD $<%= item.usdAmount %> x </span>
+                                <% } else { %>
+                                    <input type="number" class="form-control form-control-sm d-inline-block tonnage-input ms-2 me-1" style="width: 100px;" placeholder="တန်ချိန်" data-target-item-id="item<%= index %>" min="0">
+                                    <span> တန်ချိန် x <%= item.multiplier.toLocaleString('my-MM') %> = </span>
+                                <% } %>
+                            <% } %>
+                        </span>
+                        <% if (item.isDynamic) { %>
+                            <span class="dynamic-price-display price-display">၀ ကျပ်</span>
+                        <% } else { %>
+                            <span class="price-display"><%= item.price.toLocaleString('my-MM') %> ကျပ်</span>
+                        <% } %>
+                    </label>
+                </div>
+            <% }); %>
+        </div>
+
+        <hr class="my-4">
+        <div class="d-flex justify-content-end align-items-center">
+            <h4 class="me-3">စုစုပေါင်းကျသင့်ငွေ:</h4>
+            <h4 id="totalAmountDisplay" class="fw-bold price-display">၀ ကျပ်</h4>
+        </div>
+        
+        <div class="d-flex justify-content-between mt-4 align-items-center">
+            <a href="/department/waterways/flag-state-survey/coastal-vessels/initial-renewal-annual" class="btn btn-primary">&laquo; အရှေ့စာမျက်နှာသို့ ပြန်သွားရန်</a>
+            <button type="button" class="btn btn-success" id="proceedToPaymentBtn">ငွေပေးချေမည်</button>
+        </div>
+    </form>
+</div>
+
+<%- include('partials/payment_modals') %>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // --- Helper Functions for Client-Side Updates ---
+        const myanmarNumbers = ['၀', '၁', '၂', '၃', '၄', '၅', '၆', '၇', '၈', '၉'];
+        function toMyanmarNumerals(str) {
+            return str.split('').map(char => {
+                if (char === ',') return ',';
+                if (char >= '0' && char <= '9') return myanmarNumbers[parseInt(char)];
+                return char;
+            }).join('');
+        }
+
+        // --- DOM Element Selection ---
+        const form = document.getElementById('tonnageCertificateForm');
+        const checkboxes = form.querySelectorAll('.fee-checkbox');
+        const tonnageInputs = form.querySelectorAll('.tonnage-input');
+        const exchangeRateInputs = form.querySelectorAll('.exchange-rate-input');
+        const totalAmountDisplay = document.getElementById('totalAmountDisplay');
+        const selectedItemsList = document.getElementById('selectedItemsList');
+        const modalTotalAmount = document.getElementById('modalTotalAmount');
+        const proceedToPaymentBtn = document.getElementById('proceedToPaymentBtn');
+        const paymentModal = document.getElementById('paymentConfirmationModal');
+
+        // --- Core Logic ---
+        function calculateTotal() {
+            let total = 0;
+            checkboxes.forEach(function(checkbox) {
+                if (checkbox.checked) {
+                    if (checkbox.dataset.isDynamic === 'true') {
+                        if (checkbox.dataset.isForeignVessel === 'true') {
+                            const exchangeRateInput = checkbox.closest('.form-check').querySelector('.exchange-rate-input');
+                            const exchangeRate = parseFloat(exchangeRateInput.value) || 0;
+                            const usdAmount = parseFloat(checkbox.dataset.usdAmount);
+                            const itemPrice = exchangeRate * usdAmount;
+                            total += itemPrice;
+                        } else {
+                            const tonnageInput = checkbox.closest('.form-check').querySelector('.tonnage-input');
+                            const tonnageValue = parseInt(tonnageInput.value) || 0;
+                            const multiplier = parseInt(checkbox.dataset.multiplier);
+                            const itemPrice = tonnageValue * multiplier;
+                            total += itemPrice;
+                        }
+                    } else {
+                        total += parseInt(checkbox.dataset.price);
+                    }
+                }
+            });
+            const westernFormattedTotal = total.toLocaleString('en-US');
+            totalAmountDisplay.textContent = toMyanmarNumerals(westernFormattedTotal) + ' ကျပ်';
+            return total;
+        }
+
+        function updateDynamicItemPrice(input) {
+            const targetItemId = input.dataset.targetItemId;
+            const targetCheckbox = document.getElementById(targetItemId);
+            let calculatedPrice = 0;
+
+            if (targetCheckbox.dataset.isForeignVessel === 'true') {
+                const exchangeRate = parseFloat(input.value) || 0;
+                const usdAmount = parseFloat(targetCheckbox.dataset.usdAmount);
+                calculatedPrice = exchangeRate * usdAmount;
+            } else {
+                const tonnage = parseInt(input.value) || 0;
+                const multiplier = parseInt(targetCheckbox.dataset.multiplier);
+                calculatedPrice = tonnage * multiplier;
+            }
+            
+            const displaySpan = input.closest('label').querySelector('.dynamic-price-display');
+            displaySpan.textContent = toMyanmarNumerals(calculatedPrice.toLocaleString('en-US')) + ' ကျပ်';
+            calculateTotal();
+        }
+
+        // --- Event Listeners ---
+        tonnageInputs.forEach(function(input) {
+            input.addEventListener('input', function() {
+                updateDynamicItemPrice(this);
+            });
+            updateDynamicItemPrice(input);
+        });
+
+        exchangeRateInputs.forEach(function(input) {
+            input.addEventListener('input', function() {
+                updateDynamicItemPrice(this);
+            });
+            updateDynamicItemPrice(input);
+        });
+
+        checkboxes.forEach(function(checkbox) {
+            checkbox.addEventListener('change', calculateTotal);
+        });
+
+        if (proceedToPaymentBtn) {
+            proceedToPaymentBtn.addEventListener('click', function () {
+                const selected = [];
+                let currentTotal = 0;
+                checkboxes.forEach(function(checkbox) {
+                    if (checkbox.checked) {
+                        const label = checkbox.closest('.form-check').querySelector('.form-check-label');
+                        const descriptionElement = label.querySelector('.item-description');
+                        let description = '';
+                        let price = 0;
+
+                        if (checkbox.dataset.isDynamic === 'true') {
+                            if (checkbox.dataset.isForeignVessel === 'true') {
+                                const exchangeRateInput = label.querySelector('.exchange-rate-input');
+                                const exchangeRate = parseFloat(exchangeRateInput.value) || 0;
+                                const usdAmount = parseFloat(checkbox.dataset.usdAmount);
+                                const calculatedItemPrice = exchangeRate * usdAmount;
+
+                                description = descriptionElement.childNodes[0].nodeValue.trim() + 
+                                            ` (USD $${usdAmount} x ${exchangeRate} = ${label.querySelector('.dynamic-price-display').textContent})`;
+                                price = calculatedItemPrice;
+                            } else {
+                                const tonnageInput = label.querySelector('.tonnage-input');
+                                const tonnageValue = parseInt(tonnageInput.value) || 0;
+                                const multiplier = parseInt(checkbox.dataset.multiplier);
+                                const calculatedItemPrice = tonnageValue * multiplier;
+
+                                description = descriptionElement.childNodes[0].nodeValue.trim() + 
+                                            ` (${toMyanmarNumerals(String(tonnageValue))} တန်ချိန် x ${toMyanmarNumerals(String(multiplier))} = ${label.querySelector('.dynamic-price-display').textContent})`;
+                                price = calculatedItemPrice;
+                            }
+                        } else {
+                            description = descriptionElement.textContent.trim();
+                            price = parseInt(checkbox.dataset.price);
+                        }
+                        selected.push({ description, price });
+                        currentTotal += price;
+                    }
+                });
+
+                if (selected.length === 0) {
+                    alert('ကျေးဇူးပြု၍ အနည်းဆုံး ဝန်ဆောင်မှုတစ်ခု ရွေးချယ်ပါ။');
+                    return;
+                }
+
+                selectedItemsList.innerHTML = '';
+                selected.forEach(item => {
+                    const li = document.createElement('li');
+                    li.className = 'list-group-item d-flex justify-content-between align-items-center';
+                    li.innerHTML = `
+                        <span>${item.description}</span>
+                        <span class="badge bg-primary rounded-pill">${toMyanmarNumerals(item.price.toLocaleString('en-US'))} ကျပ်</span>
+                    `;
+                    selectedItemsList.appendChild(li);
+                });
+
+                modalTotalAmount.textContent = toMyanmarNumerals(currentTotal.toLocaleString('en-US')) + ' ကျပ်';
+                const modal = new bootstrap.Modal(paymentModal);
+                modal.show();
+            });
+        }
+
+        document.getElementById('confirmPaymentBtn').addEventListener('click', async function() {
+            try {
+                const confirmationModal = bootstrap.Modal.getInstance(paymentModal);
+                confirmationModal.hide();
+
+                // Prepare payment data
+                const paymentData = {
+                    amount: currentTotal,
+                    orderId: 'TON-' + Date.now(), // Generate a unique order ID
+                    description: 'Tonnage Certificate Payment'
+                };
+
+                // Call the payment initiation endpoint
+                const response = await fetch('/payment/initiate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(paymentData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Redirect to AYA PAY payment page or handle the payment response
+                    window.location.href = result.data.paymentUrl;
+                } else {
+                    throw new Error(result.message || 'Payment initiation failed');
+                }
+            } catch (error) {
+                console.error('Payment error:', error);
+                alert('Payment initiation failed. Please try again.');
+            }
+        });
+
+        // --- Initial Calculation ---
+        calculateTotal();
+    });
+</script>
+
+<%- include('partials/footer') %> 

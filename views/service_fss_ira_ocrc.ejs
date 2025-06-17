@@ -1,0 +1,221 @@
+<%- include('partials/header', { title: pageTitle }) %>
+
+<div class="breadcrumb-container-wrapper bg-light py-2 border-bottom mb-5">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="/">ပင်မစာမျက်နှာ</a></li>
+                <li class="breadcrumb-item"><a href="/department/waterways"><%= greatGreatGrandparentDepartmentName %></a></li>
+                <li class="breadcrumb-item"><a href="/department/waterways/flag-state-survey"><%= greatGrandparentSubSectionName %></a></li>
+                <li class="breadcrumb-item"><a href="/department/waterways/flag-state-survey/international-vessels"><%= grandparentNestedSectionName %></a></li>
+                <li class="breadcrumb-item"><a href="/department/waterways/flag-state-survey/international-vessels/initial-renewal-annual"><%= parentServiceName %></a></li>
+                <li class="breadcrumb-item active" aria-current="page"><%= pageTitle %></li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="container mt-4">
+    <h2 class="department-title"><%= pageTitle %></h2>
+    <p class="lead">ဤဝန်ဆောင်မှုအတွက် လိုအပ်သော အချက်အလက်များကို ရွေးချယ်ပါ။</p>
+    <hr class="my-4">
+
+    <form id="ocrcForm">
+        <% items.forEach(function(item, index) { %>
+            <div class="form-check mb-2">
+                <input class="form-check-input fee-item" type="checkbox" value="<%= item.price %>" id="item<%= index %>" data-price="<%= item.price %>" <%= item.checked ? 'checked' : '' %>>
+                <label class="form-check-label d-flex justify-content-between" for="item<%= index %>">
+                    <span><%= item.description %></span>
+                    <span class="price-display"><%= item.price.toLocaleString('my-MM') %> ကျပ်</span>
+                </label>
+            </div>
+        <% }); %>
+    </form>
+
+    <hr class="my-4">
+    <div class="d-flex justify-content-end align-items-center">
+        <h4 class="me-3">စုစုပေါင်းကျသင့်ငွေ:</h4>
+        <h4 id="totalAmountDisplay" class="fw-bold price-display">၀ ကျပ်</h4>
+    </div>
+    
+    <div class="d-flex justify-content-between mt-4 align-items-center">
+        <a href="/department/waterways/flag-state-survey/international-vessels/initial-renewal-annual" class="btn btn-primary">&laquo; အရှေ့စာမျက်နှာသို့ ပြန်သွားရန် </a>
+        <button type="button" class="btn btn-success" id="proceedToPaymentBtn">ငွေပေးချေမည်</button>
+    </div>
+</div>
+
+
+<!-- Confirmation Modal -->
+<div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmationModalLabel">ငွေပေးချေမှု အတည်ပြုပါ</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>သင်ရွေးချယ်ထားသော ဝန်ဆောင်မှုများမှာ အောက်ပါအတိုင်းဖြစ်ပါသည်:</p>
+        <ul id="selectedItemsList" class="list-group mb-3">
+          <!-- Selected items will be populated here by JavaScript -->
+        </ul>
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <h5 class="mb-0"><strong>စုစုပေါင်းကျသင့်ငွေ:</strong></h5>
+            <h5 class="mb-0"><strong id="modalTotalAmount" class="price-display"></strong></h5>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">မပြုလုပ်ပါ</button>
+        <button type="button" class="btn btn-primary" id="confirmPaymentBtn">အတည်ပြုမည်</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Success Modal -->
+<div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="successModalLabel">အောင်မြင်ပါသည်</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p class="text-center fs-5 py-3">ငွေပေးချေမှု အောင်မြင်ပါသည်။</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">ပိတ်မည်</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const checkboxes = document.querySelectorAll('.fee-item');
+    const totalAmountDisplay = document.getElementById('totalAmountDisplay');
+    const proceedToPaymentBtn = document.getElementById('proceedToPaymentBtn');
+    
+    const confirmationModalEl = document.getElementById('confirmationModal');
+    const successModalEl = document.getElementById('successModal');
+    
+    let confirmationModalInstance, successModalInstance;
+
+    if (confirmationModalEl) {
+        confirmationModalInstance = new bootstrap.Modal(confirmationModalEl);
+    } else {
+        console.error('Confirmation modal element not found');
+    }
+    if (successModalEl) {
+        successModalInstance = new bootstrap.Modal(successModalEl);
+    } else {
+        console.error('Success modal element not found');
+    }
+
+    const selectedItemsList = document.getElementById('selectedItemsList');
+    const modalTotalAmount = document.getElementById('modalTotalAmount');
+    const confirmPaymentBtn = document.getElementById('confirmPaymentBtn');
+
+    function toMyanmarNumerals(westernNumberString) {
+        const myanmarNumerals = ['၀', '၁', '၂', '၃', '၄', '၅', '၆', '၇', '၈', '၉'];
+        let myanmarString = '';
+        if (typeof westernNumberString !== 'string') {
+            westernNumberString = String(westernNumberString);
+        }
+        for (let i = 0; i < westernNumberString.length; i++) {
+            const char = westernNumberString[i];
+            if (char >= '0' && char <= '9') {
+                myanmarString += myanmarNumerals[parseInt(char)];
+            } else {
+                myanmarString += char;
+            }
+        }
+        return myanmarString;
+    }
+
+    function calculateTotal() {
+        let total = 0;
+        checkboxes.forEach(function(checkbox) {
+            if (checkbox.checked) {
+                total += parseInt(checkbox.dataset.price);
+            }
+        });
+        const westernFormattedTotal = total.toLocaleString('en-US');
+        totalAmountDisplay.textContent = toMyanmarNumerals(westernFormattedTotal) + ' ကျပ်';
+        return total; 
+    }
+
+    checkboxes.forEach(function(checkbox) {
+        checkbox.addEventListener('change', calculateTotal);
+    });
+
+    if (proceedToPaymentBtn) {
+        proceedToPaymentBtn.addEventListener('click', function () {
+            const selected = [];
+            let currentTotal = 0;
+            checkboxes.forEach(function(checkbox) {
+                if (checkbox.checked) {
+                    const label = checkbox.nextElementSibling;
+                    const description = label.querySelector('span:first-child').textContent;
+                    const price = parseInt(checkbox.dataset.price);
+                    selected.push({ description, price });
+                    currentTotal += price;
+                }
+            });
+
+            if (selected.length === 0) {
+                alert('ကျေးဇူးပြု၍ အနည်းဆုံး ဝန်ဆောင်မှုတစ်ခု ရွေးချယ်ပါ။');
+                return;
+            }
+
+            selectedItemsList.innerHTML = ''; // Clear previous items
+            selected.forEach(item => {
+                const listItem = document.createElement('li');
+                listItem.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-center');
+                
+                const descriptionSpan = document.createElement('span');
+                descriptionSpan.textContent = item.description;
+                
+                const priceSpan = document.createElement('span');
+                priceSpan.classList.add('price-display');
+                priceSpan.textContent = toMyanmarNumerals(item.price.toLocaleString('en-US')) + ' ကျပ်';
+                
+                listItem.appendChild(descriptionSpan);
+                listItem.appendChild(priceSpan);
+                selectedItemsList.appendChild(listItem);
+            });
+            
+            const westernFormattedTotal = currentTotal.toLocaleString('en-US');
+            modalTotalAmount.textContent = toMyanmarNumerals(westernFormattedTotal) + ' ကျပ်';
+            
+            if (confirmationModalInstance) {
+                confirmationModalInstance.show();
+            } else {
+                console.error("Confirmation modal instance not available to show.");
+            }
+        });
+    } else {
+        console.error("Proceed to Payment button not found.");
+    }
+
+    if (confirmPaymentBtn) {
+        confirmPaymentBtn.addEventListener('click', function () {
+            if (confirmationModalInstance) confirmationModalInstance.hide();
+            
+            if (successModalInstance) {
+                successModalInstance.show();
+            } else {
+                console.error("Success modal instance not available to show.");
+            }
+
+            checkboxes.forEach(checkbox => checkbox.disabled = true);
+            if (proceedToPaymentBtn) proceedToPaymentBtn.disabled = true;
+        });
+    } else {
+        console.error("Confirm Payment button not found.");
+    }
+    
+    calculateTotal();
+});
+</script>
+
+<%- include('partials/footer') %>

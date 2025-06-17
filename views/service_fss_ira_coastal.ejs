@@ -1,0 +1,31 @@
+<%- include('partials/header', { title: pageTitle }) %>
+
+<div class="breadcrumb-container-wrapper bg-light py-2 border-bottom mb-5">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="/">ပင်မစာမျက်နှာ</a></li>
+                <li class="breadcrumb-item"><a href="/department/waterways"><%= greatGreatGrandparentDepartmentName %></a></li>
+                <li class="breadcrumb-item"><a href="/department/waterways/flag-state-survey"><%= greatGrandparentSubSectionName %></a></li>
+                <li class="breadcrumb-item"><a href="/department/waterways/flag-state-survey/coastal-vessels"><%= parentNestedSectionName %></a></li>
+                <li class="breadcrumb-item active" aria-current="page"><%= pageTitle %></li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="container mt-4">
+    <h2 class="department-title"><%= pageTitle %></h2>
+    <p class="lead">ဤစာမျက်နှာသည် <%= pageTitle %> နှင့် သက်ဆိုင်သော သတင်းအချက်အလက်များနှင့် ဝန်ဆောင်မှုများအတွက် ဖြစ်ပါသည်။</p>
+    <hr class="my-4">
+    <p>ဤကဏ္ဍတွင် အောက်ဖော်ပြပါ လက်မှတ်များအတွက် ကနဦးစစ်ဆေးခြင်း၊ သက်တမ်းတိုးခြင်း နှင့် နှစ်ပတ်လည်စစ်ဆေးခြင်းများ ဆောင်ရွက်နိုင်ပါသည်:</p>
+    <div class="d-grid gap-2 mb-4">
+        <% services.forEach(service => { %>
+            <a href="<%= service.url %>" class="sub-category-link"><%= service.name %></a>
+        <% }); %>
+    </div>
+    <hr class="my-4">
+    <a href="/department/waterways/flag-state-survey/coastal-vessels" class="btn btn-secondary mt-3">&laquo; <%= parentNestedSectionName %> သို့ ပြန်သွားရန်</a>
+</div>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,27 @@
+<%- include('partials/header', { title: departmentName + ' - SSE ဌာနခွဲ' }) %>
+
+<div class="breadcrumb-container-wrapper bg-light py-2 border-bottom mb-5">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="/">ပင်မစာမျက်နှာ</a></li>
+                <li class="breadcrumb-item active" aria-current="page"><%= title %></li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="container mt-4">
+    <h2 class="department-title"><%= departmentName %></h2>
+    <p class="lead">ဤစာမျက်နှာသည် <%= departmentName %> နှင့် သက်ဆိုင်သော သတင်းအချက်အလက်များနှင့် ဝန်ဆောင်မှုများအတွက် ဖြစ်ပါသည်။</p>
+    <hr class="my-4">
+    <p>Placeholder content for the SSE (Ship Safety and Environment) Department. Specific details, forms, and information related to this department will be populated here.</p>
+    <ul>
+        <li>Safety Standards</li>
+        <li>Environmental Protection</li>
+        <li>Audit Procedures</li>
+    </ul>
+    <a href="/" class="btn btn-primary mt-3">&laquo; ပင်မစာမျက်နှာသို့ ပြန်သွားရန်</a>
+</div>
+
+<%- include('partials/footer') %>

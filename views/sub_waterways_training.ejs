@@ -1,0 +1,25 @@
+<%- include('partials/header', { title: subSectionName }) %>
+
+<div class="breadcrumb-container-wrapper bg-light py-2 border-bottom mb-5">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="/">ပင်မစာမျက်နှာ</a></li>
+                <li class="breadcrumb-item"><a href="/department/waterways"><%= parentDepartmentName %></a></li>
+                <li class="breadcrumb-item active" aria-current="page"><%= subSectionName %></li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="container mt-4">
+
+    <h2 class="department-title"><%= subSectionName %></h2>
+    <p class="lead">ဤစာမျက်နှာသည် <%= subSectionName %> နှင့် သက်ဆိုင်သော သတင်းအချက်အလက်များနှင့် ဝန်ဆောင်မှုများအတွက် ဖြစ်ပါသည်။</p>
+    <hr class="my-4">
+    <p>Content specific to လေ့ကျင့်ရေးဌာနစု (Training Section) will go here.</p>
+    
+    <a href="/department/waterways" class="btn btn-primary mt-3">&laquo; <%= parentDepartmentName %> သို့ ပြန်သွားရန်</a>
+</div>
+
+<%- include('partials/footer') %>

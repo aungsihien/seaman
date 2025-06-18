@@ -8,6 +8,9 @@ router.get('/test-token', paymentController.testTokenGeneration);
 // Test route for merchant login
 router.post('/test-merchant-login', paymentController.testMerchantLogin);
 
+// Test route for push payment request
+router.post('/test-push-payment', paymentController.testPushPayment);
+
 // Route to initiate payment
 router.post('/initiate', paymentController.initiatePayment);
 

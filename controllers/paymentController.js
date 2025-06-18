@@ -48,6 +48,71 @@ exports.testMerchantLogin = async (req, res) => {
     }
 };
 
+// Test endpoint for push payment request
+exports.testPushPayment = async (req, res) => {
+    try {
+        const { 
+            merchantPhone, 
+            merchantPassword, 
+            amount, 
+            customerPhone, 
+            externalTransactionId,
+            externalAdditionalData 
+        } = req.body;
+        
+        if (!merchantPhone || !merchantPassword || !amount || !customerPhone || !externalTransactionId) {
+            return res.status(400).json({
+                success: false,
+                message: 'merchantPhone, merchantPassword, amount, customerPhone, and externalTransactionId are required'
+            });
+        }
+
+        // First, login as merchant to get merchant token
+        const merchantLoginResult = await ayaPayService.merchantLogin(merchantPhone, merchantPassword);
+        console.log('Merchant login result:', merchantLoginResult);
+        
+        // Extract the merchant token from the response
+        // The token is nested under token.token based on the API response
+        let merchantToken;
+        if (merchantLoginResult.token && merchantLoginResult.token.token) {
+            merchantToken = merchantLoginResult.token.token;
+        } else if (merchantLoginResult.token) {
+            merchantToken = merchantLoginResult.token;
+        } else if (merchantLoginResult.access_token) {
+            merchantToken = merchantLoginResult.access_token;
+        } else if (merchantLoginResult.data && merchantLoginResult.data.token) {
+            merchantToken = merchantLoginResult.data.token;
+        } else {
+            throw new Error('Could not extract merchant token from login response');
+        }
+
+        console.log('Extracted merchant token:', merchantToken);
+
+        // Prepare payment details
+        const paymentDetails = {
+            amount: amount,
+            currency: 'MMK',
+            externalTransactionId: externalTransactionId,
+            customerPhone: customerPhone,
+            externalAdditionalData: externalAdditionalData
+        };
+
+        // Request push payment
+        const result = await ayaPayService.requestPushPayment(merchantToken, paymentDetails);
+        res.json({
+            success: true,
+            data: result
+        });
+    } catch (error) {
+        console.error('Push payment test error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to request push payment',
+            error: error.message
+        });
+    }
+};
+
 exports.initiatePayment = async (req, res) => {
     try {
         const { amount, orderId, description } = req.body;

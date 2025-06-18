@@ -68,6 +68,57 @@ class AyaPayService {
         }
     }
 
+    async requestPushPayment(merchantToken, paymentDetails) {
+        try {
+            // Get access token for the request
+            const accessToken = await this.generateToken();
+            console.log('Generated access token for push payment:', accessToken);
+            console.log('Using merchant token for push payment:', merchantToken);
+            // Get access token for the request
+            // const merchantToken = await this.merchantLogin(paymentDetails.merchantPhone, paymentDetails.merchantPassword);
+            // console.log('Using merchant token for push payment:', merchantToken);
+            // console.log('Payment details:', paymentDetails);
+
+            // Prepare form data
+            const formData = new URLSearchParams();
+            formData.append('amount', paymentDetails.amount);
+            formData.append('currency', paymentDetails.currency || 'MMK');
+            formData.append('externalTransactionId', paymentDetails.externalTransactionId);
+            formData.append('customerPhone', paymentDetails.customerPhone);
+            formData.append('serviceCode', 'marine-om');
+            
+            if (paymentDetails.externalAdditionalData) {
+                formData.append('externalAdditionalData', paymentDetails.externalAdditionalData);
+            }
+
+            console.log('Form data for push payment:', formData.toString());
+
+            // Make the request
+            const response = await axios.post(
+                `${this.baseUrl}/om/1.0.0/thirdparty/merchant/v2/requestPushPayment`,
+                formData,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${merchantToken}`,
+                        'Token': `Bearer ${accessToken}`,
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    }
+                }
+            );
+
+            console.log('Push payment response:', response.data);
+            return response.data;
+        } catch (error) {
+            console.error('Error in push payment request:', {
+                message: error.message,
+                response: error.response?.data,
+                status: error.response?.status,
+                headers: error.response?.headers
+            });
+            throw new Error(`Failed to request push payment: ${error.message}`);
+        }
+    }
+
     async requestPayment(token, paymentDetails) {
         try {
             const response = await axios.post(`${this.baseUrl}/payment/request`, {
